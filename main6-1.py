@@ -177,6 +177,7 @@ def gen(videostream):
         d = int(now.tm_mday)
         h = int(now.tm_hour + 9)
         mi = int(now.tm_min)
+        sec = int(now.tm_sec)
         if mo < 10:
             mo = str(0) + str(mo)
         if d < 10:
@@ -273,10 +274,8 @@ def gen(videostream):
                 u'Distance' : distance,
                 u'date' : date
                 })
-                #cv2.imwrite(imgfolder +'/' + 'D'+ str(y)+str(mo)+str(d)+str(h)+str(mi)+ '.jpg', capimg)
-                #time.sleep(0.01)
-                #print(imgfolder +'/' + 'D'+ str(y)+str(mo)+str(d)+str(h)+str(mi)+ '.jpg')
-                #print('======================saveIMG=================')
+                cv2.imwrite(imgfolder +'/' + 'D'+str(mo)+str(d)+str(h)+str(mi)+str(sec)+ '.jpg', capimg)
+                print('======================saveIMG=================')
             
                 
         else :
