@@ -1,0 +1,275 @@
+<html>
+<head>
+  <!-- 합쳐지고 최소화된 최신 CSS -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+  <!-- 부가적인 테마 -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+
+  <!-- 합쳐지고 최소화된 최신 자바스크립트 -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+
+  <script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.14.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.14.1/firebase-firestore.js"></script>
+
+  <style>
+  .bigPictureWrapper {
+    position: absolute;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    top:0%;
+    width:100%;
+    height:100%;
+    background-color: gray; 
+    z-index: 100;
+    background: rgba(0, 0, 0, 0.9);
+  }
+  .bigPicture {
+    position: relative;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .bigPicture img {
+    width:1000px;
+  }
+  </style>
+
+  <title>A.I. Anti-Drone Security Feed</title>
+
+</head>
+
+<body>
+
+  <div class='bigPictureWrapper'>
+    <div class='bigPicture'></div>
+  </div>
+
+  <div class="container">
+    <div class="header">
+    <nav>
+    <ul class="nav nav-pills pull-right">
+    <li role="presentation" class="active"><a href="#">Streaming</a></li>
+    <li role="presentation"><a href="{{url_for('static', filename = 'about.html')}}">About</a></li>
+    <li role="presentation"><a href="#">Contact</a></li>
+    </ul>
+    </nav>
+    <h2 class="text-muted">A.I. Anti-Drone Security streaming</h3>
+    </div>
+
+    <hr class="featurette-divider">
+
+    <div class="row">
+      <div class="col-md-8">
+      <img id="bg" src="{{ url_for('video_feed') }}" class="img-thumbnail">
+      <!--<img id="bg" src="187.jpg" class="img-thumbnail" width="800" height="800">-->
+      </div>
+
+      <div class="col-md-4">
+        <h3 id="NumberOfDroneOutput">Number of Drone: </h3>
+        <h4 id="timedate">Date: </h4>
+
+        <hr class="featurette-divider">
+
+        <h3 style="color: rgba(0,0,0,0.5);">Controller</h3><br>
+
+        <div class="controller">
+          <div>
+          <svg width="50%" height="15%" viewBox="0 0 100 100">
+          <defs>
+          <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:rgb(16,16,16);stop-opacity:1" />
+          <stop offset="100%" style="stop-color:rgb(240,240,240);stop-opacity:1" />
+          </linearGradient>
+          <linearGradient id="grad2" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:rgb(240,240,240);stop-opacity:1" />
+          <stop offset="100%" style="stop-color:rgb(16,16,16);stop-opacity:1" />
+          </linearGradient>
+          <linearGradient id="grad3" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:rgb(168,168,168);stop-opacity:1" />
+          <stop offset="100%" style="stop-color:rgb(239,239,239);stop-opacity:1" />
+          </linearGradient>
+          </defs>
+
+          <circle cx="50" cy="50" r="50" fill="url(#grad1)" />
+          <circle cx="50" cy="50" r="47" fill="url(#grad2)" stroke="black" stroke-width="1.5px" />
+          <circle cx="50" cy="50" r="44" fill="url(#grad3)" />
+          <circle cx="50" cy="50" r="20" fill="#cccccc" stroke="black" stroke-width="1px" id="initButton" onclick="init();" />
+          <path d="M50,14 54,22 46,22Z" fill="rgba(0,0,0,0.8)" />
+          <path d="M50,86 54,78 46,78Z" fill="rgba(0,0,0,0.8)" />
+          <path d="M14,50 22,54 22,46Z" fill="rgba(0,0,0,0.8)" />
+          <path d="M86,50 78,54 78,46Z" fill="rgba(0,0,0,0.8)" />
+          <path d="M0,0 30,30 70,30 100,0" fill="rgba(0,0,0,0)" id="UPButton" onclick="insert_tilt('+'+1);equal_tilt();" />
+          <path d="M0,100 30,70 70,70 100,100Z" fill="rgba(0,0,0,0)" id="DOWNButton" onclick="insert_tilt(-1);equal_tilt();" />
+          <path d="M0,0 30,30 30,70 0,100Z" fill="rgba(0,0,0,0)" id="LEFTButton" onclick="insert_pan(-1);equal_pan();" />
+          <path d="M100,0 70,30 70,70 100,100Z" fill="rgba(0,0,0,0)" id="RIGHTButton" onclick="insert_pan('+'+1);equal_pan();" />
+
+          </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <br><hr class="featurette-divider">
+
+    <footer>
+    <p class="pull-right"><a href="#">Back to top</a></p>
+    <p>&copy; 2020 HANSUNG.univ &middot; Capstone Design </p>
+    </footer>
+  </div>
+
+</body>
+
+<script type="text/javascript">
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyCwv1H_4608k_iQN6-HHVI2wxrTvxMjvKc",
+    authDomain: "firestore-1add2.firebaseapp.com",
+    databaseURL: "https://firestore-1add2.firebaseio.com",
+    projectId: "firestore-1add2",
+    storageBucket: "firestore-1add2.appspot.com",
+    messagingSenderId: "410516002311",
+    appId: "1:410516002311:web:0c1e7cc41724dca1db3ca2",
+    measurementId: "G-S7ZZZRVQX7"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  var firestore = firebase.firestore();
+
+  //const docRef = firestore.collection("robot1").doc("sky")
+  const docRef = firestore.doc("robot1/sky");
+  const docRef_control = firestore.doc("robot1/control");
+  const outputHeader = document.querySelector("#NumberOfDroneOutput");//불러오기
+  const outputHeader2 = document.querySelector("#timedate"); //불러오기
+  const inputTextField = document.querySelector("#Num_of_drone"); //첫번째빈칸 불러오기
+
+
+  const UPButton = document.querySelector("#UPButton")     //UP 업버튼
+  const DOWNButton = document.querySelector("#DOWNButton") //DOWN 다운 버튼 tilt
+  const inputTiltValue = document.querySelector("#tiltview")    //tilt
+  const outputTiltValue = document.querySelector("#tiltview")
+
+  const LEFTButton = document.querySelector("#LEFTButton")  //LEFT 왼쪽버튼
+  const RIGHTButton = document.querySelector("#RIGHTButton")//RIGHT 오른쪽 버튼
+  const inputPanValue = document.querySelector("#panview")      //pan
+  const outputPanValue = document.querySelector("#panview")
+
+  const initButton = document.querySelector("#initButton")
+
+  //센터버튼 누르면 
+  initButton.addEventListener("click", function() {
+    const state_tilt = inputTiltValue.value;
+    const state_pan = inputPanValue.value;
+    console.log("I am going to save" + state_tilt +"and" + state_pan + "to Firestore")
+    docRef_control.set({
+      up_down: 0,
+      left_right: 0,
+      left_rightcontrol : 0
+      }).then(function(){
+      console.log("init state of pan and tilt!");
+      }).catch(function(error){
+      console.log("Got an error of pan and tilt:", error);
+      });
+  });  
+
+  //업버튼 누르면 
+  UPButton.addEventListener("click", function() {
+    const state_tilt = inputTiltValue.value;
+    const state_pan = inputPanValue.value;
+    console.log("I am going to save" + state_tilt +"and" + state_pan + "to Firestore")
+    docRef_control.set({
+      up_down: state_tilt,
+      left_right: state_pan
+      }).then(function(){
+      console.log("change state of tilt!");
+      }).catch(function(error){
+      console.log("Got an error of tilt:", error);
+      });
+  });
+
+  //다운버튼 누르면 
+  DOWNButton.addEventListener("click", function() {
+    const state_tilt = inputTiltValue.value;
+    const state_pan = inputPanValue.value;
+    console.log("I am going to save" + state_tilt +"and" + state_pan + "to Firestore")
+      docRef_control.set({
+      up_down: state_tilt,
+      left_right: state_pan
+      }).then(function(){
+      console.log("change state of tilt!");
+      }).catch(function(error){
+      console.log("Got an error of tilt:", error);
+      });
+  });
+
+  //왼쪽버튼 누르면 
+  LEFTButton.addEventListener("click", function() {
+    const state_tilt = inputTiltValue.value;
+    const state_pan = inputPanValue.value;
+    console.log("I am going to save" + state_tilt +"and" + state_pan + "to Firestore")
+    docRef_control.set({
+      up_down: 0,
+      left_rightcontrol: -1
+      }).then(function(){
+      console.log("change state of pan!");
+      }).catch(function(error){
+      console.log("Got an error of pan:", error);
+      });
+  });
+
+  //오른쪽버튼 누르면 
+  RIGHTButton.addEventListener("click", function() {
+    const state_tilt = inputTiltValue.value;
+    const state_pan = inputPanValue.value;
+    console.log("I am going to save" + state_tilt +"and" + state_pan + "to Firestore")
+    docRef_control.set({
+      up_down: 0,
+      left_rightcontrol: 1
+      }).then(function(){
+      console.log("change state of pan!");
+      }).catch(function(error){
+      console.log("Got an error of pan:", error);
+      });
+  });
+
+  getRealtimeUpdates = function() {
+    docRef.onSnapshot(function (doc) {
+      if (doc && doc.exists) {
+        const myData = doc.data();
+        outputHeader.innerText = "Number of Drone: " + myData.Num_of_drone;
+        outputHeader2.innerText = "Date: " + myData.date;
+      }
+    });
+  }
+
+  getRealtimeUpdates();
+</script>
+
+<script type="text/javascript">
+  $(document).ready(function (e){
+
+  $(document).on("click","img",function(){
+    var path = $(this).attr('src')
+    showImage(path);
+  });//end click event
+
+  function showImage(fileCallPath){
+
+  $(".bigPictureWrapper").css("display","flex").show();
+
+  $(".bigPicture")
+  .html("<img src='"+fileCallPath+"' >")
+
+  }//end fileCallPath
+
+  $(".bigPictureWrapper").on("click", function(e){
+    $('.bigPictureWrapper').hide();
+    });//end bigWrapperClick event
+  });
+</script>
+</html>
