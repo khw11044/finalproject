@@ -312,7 +312,7 @@ def gen(videostream):
        
         t2 = cv2.getTickCount()
         time1 = (t2-t1)/freq
-        frame_rate_calc= (1/time1)+10   
+        frame_rate_calc= (1/time1)
 
 @app.route('/video_feed')
 def video_feed():
