@@ -4,34 +4,42 @@ import time
 import numpy as np
 
 class VideoStream:
-    def __init__(self,resolution=(640,640),framerate=30):
-        print("init")
+    """Camera object that controls video streaming from the Picamera"""
+    def __init__(self,resolution=(640,480),framerate=30):
+        # Initialize the PiCamera and the camera image stream
         self.stream = cv2.VideoCapture(0)
-        #self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 480)
-        #self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 640)
-        (self.grabbed, self.frame) = self.stream.read()
-        self.stopped = False
-        time.sleep(2.0)
-    
-    def start(self):
-        print("start thread")
-        t = Thread(target=self.update, args=())
-        t.daemon = True
-        t.start()
-        return self
-    
-    def update(self):
-        print("read")
-        while True:
-            if self.stopped:
-                return
+        ret = self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+        ret = self.stream.set(3,resolution[0])
+        ret = self.stream.set(4,resolution[1])
             
-            (self.grabbed, self.frame) = self.stream.read()
-    
-    def read(self):
-        return self.frame
-    
-    def stop(self):
-        self.stopped = True
+        # Read first frame from the stream
+        (self.grabbed, self.frame) = self.stream.read()
 
+	# Variable to control when the camera is stopped
+        self.stopped = False
+
+    def start(self):
+	# Start the thread that reads frames from the video stream
+        Thread(target=self.update,args=()).start()
+        return self
+
+    def update(self):
+        # Keep looping indefinitely until the thread is stopped
+        while True:
+            # If the camera is stopped, stop the thread
+            if self.stopped:
+                # Close camera resources
+                self.stream.release()
+                return
+
+            # Otherwise, grab the next frame from the stream
+            (self.grabbed, self.frame) = self.stream.read()
+
+    def read(self):
+	# Return the most recent frame
+        return self.frame
+
+    def stop(self):
+	# Indicate that the camera and thread should be stopped
+        self.stopped = True
 
